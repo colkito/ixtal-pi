@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+  nextcloud:
+    image: linuxserver/nextcloud:28.0.4
+    container_name: nextcloud
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - REDIS_HOST=redis
+    volumes:
+      - /media/data/ixtal-pi/nextcloud/config:/config
+      - /media/data/ixtal-pi/nextcloud/data:/data
+    ports:
+      - '${PORT}:443'
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+    networks:
+      - nextcloud_network
+
+  db:
+    image: linuxserver/mariadb:10.11.6
+    container_name: nextcloud_db
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TZ=${TZ}
+      - MYSQL_DATABASE=db
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
+    volumes:
+      - /media/data/ixtal-pi/nextcloud/db:/config
+    restart: unless-stopped
+    networks:
+      - nextcloud_network
+
+  redis:
+    image: redis:7.2.4-alpine3.19
+    container_name: nextcloud_redis
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - /media/data/ixtal-pi/nextcloud/redis:/data
+    restart: unless-stopped
+    networks:
+      - nextcloud_network
+
+networks:
+  nextcloud_network:
+    name: nextcloud_network
+    driver: bridge

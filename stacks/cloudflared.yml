@@ -1,0 +1,14 @@
+version: '3.9'
+
+networks:
+  default:
+    driver: bridge
+
+services:
+  tunnel:
+    container_name: cloudflared-tunnel
+    image: cloudflare/cloudflared:latest
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=$CF_TUNNEL_TOKEN
+    restart: unless-stopped
