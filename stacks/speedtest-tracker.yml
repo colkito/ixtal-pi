@@ -1,45 +1,50 @@
 version: '3.9'
 
-networks:
-  default:
-    driver: bridge
-
 services:
-  db:
-    container_name: speedtracker_db
-    image: mariadb:11.3.2
-    environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
-      - MYSQL_RANDOM_ROOT_PASSWORD=true
-      - MYSQL_DATABASE=speedtest_tracker
-      - MYSQL_USER=$SPEEDTEST_TRACKER_DB_USERNAME
-      - MYSQL_PASSWORD=$SPEEDTEST_TRACKER_DB_PASSWORD
-    volumes:
-      - $SPEEDTEST_TRACKER_VOLUME/db:/var/lib/mysql
-    restart: unless-stopped
-
-  speedtest-tracker:
+  speedtracker:
     container_name: speedtracker
     image: ghcr.io/alexjustesen/speedtest-tracker:v0.18.5
     ports:
-      - $PORT_80:80
-      - $PORT_443:443
+      - ${PORT_80}:80
+      - ${PORT_443}:443
     environment:
-      - PUID=$PUID
-      - PGID=$PGID
-      - TZ=$TZ
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ}
       - DB_CONNECTION=mysql
-      - DB_HOST=db
+      - DB_HOST=speedtracker_db
       - DB_PORT=3306
       - DB_DATABASE=speedtest_tracker
-      - DB_USERNAME=$SPEEDTEST_TRACKER_DB_USERNAME
-      - DB_PASSWORD=$SPEEDTEST_TRACKER_DB_PASSWORD
+      - DB_USERNAME=${SPEEDTEST_TRACKER_DB_USERNAME}
+      - DB_PASSWORD=${SPEEDTEST_TRACKER_DB_PASSWORD}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - $SPEEDTEST_TRACKER_VOLUME/config:/config
-      - $SPEEDTEST_TRACKER_VOLUME/web:/etc/ssl/web
+      - ${SPEEDTEST_TRACKER_VOLUME}/config:/config
+      - ${SPEEDTEST_TRACKER_VOLUME}/web:/etc/ssl/web
     restart: unless-stopped
     depends_on:
-      - db
+      - speedtracker_db
+    networks:
+      - speedtracker_network
+
+  speedtracker_db:
+    container_name: speedtracker_db
+    image: mariadb:11.3.2
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ}
+      - MYSQL_RANDOM_ROOT_PASSWORD=true
+      - MYSQL_DATABASE=speedtest_tracker
+      - MYSQL_USER=${SPEEDTEST_TRACKER_DB_USERNAME}
+      - MYSQL_PASSWORD=${SPEEDTEST_TRACKER_DB_PASSWORD}
+    volumes:
+      - ${SPEEDTEST_TRACKER_VOLUME}/db:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - speedtracker_network
+
+networks:
+  speedtracker_network:
+    name: speedtracker_network
+    driver: bridge

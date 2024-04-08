@@ -1,21 +1,24 @@
 version: '3.9'
 
-networks:
-  default:
-    driver: bridge
-
 services:
   filebrowser:
     container_name: filebrowser
     image: filebrowser/filebrowser:v2.28.0
     ports:
-      - $PORT_80:80
+      - ${PORT_80}:80
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=America/Sao_Paulo
+      - TZ=${TZ}
     volumes:
-      - $FILEBROWSER_VOLUME_HOST/files:/srv
-      - $FILEBROWSER_VOLUME_HOST/filebrowser/filebrowser.db:/database/filebrowser.db
-      - $FILEBROWSER_VOLUME_HOST/filebrowser/.filebrowser.json:/.filebrowser.json:ro
+      - ${FILEBROWSER_VOLUME_HOST}/files:/srv
+      - ${FILEBROWSER_VOLUME_HOST}/filebrowser/filebrowser.db:/database/filebrowser.db
+      - ${FILEBROWSER_VOLUME_HOST}/filebrowser/.filebrowser.json:/.filebrowser.json:ro
     restart: always
+    networks:
+      - filebrowser_network
+
+networks:
+  filebrowser_network:
+    name: filebrowser_network
+    driver: bridge

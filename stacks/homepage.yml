@@ -1,19 +1,22 @@
 version: '3.9'
 
-networks:
-  default:
-    driver: bridge
-
 services:
   homepage:
     container_name: homepage
     image: ghcr.io/gethomepage/homepage:v0.8.10
     ports:
-      - $PORT_3000:3000
+      - ${PORT_3000}:3000
     environment:
       - PUID=1000
       - PGID=1000
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # (optional) For docker integrations, see alternative methods
-      - $HOMEPAGE_VOLUME/config:/app/config # Make sure your local config directory exists
+      - ${HOMEPAGE_VOLUME}/config:/app/config # Make sure your local config directory exists
     restart: unless-stopped
+    networks:
+      - homepage_network
+
+networks:
+  homepage_network:
+    name: homepage_network
+    driver: bridge

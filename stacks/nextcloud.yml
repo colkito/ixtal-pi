@@ -5,8 +5,8 @@ services:
     image: linuxserver/nextcloud:latest
     container_name: nextcloud
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
+      - PUID=1000
+      - PGID=1000
       - TZ=${TZ}
     volumes:
       - ${NEXTCLOUD_VOLUME}/config:/config
@@ -24,8 +24,8 @@ services:
     image: linuxserver/mariadb:latest
     container_name: nextcloud_db
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
+      - PUID=1000
+      - PGID=1000
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - TZ=${TZ}
       - MYSQL_DATABASE=nextcloud_db
@@ -49,5 +49,5 @@ services:
 
 networks:
   nextcloud_network:
-    name: nextcloud-network
+    name: nextcloud_network
     driver: bridge
