@@ -22,9 +22,12 @@ services:
       - ${ADGUARD_VOLUME}/conf:/opt/adguardhome/conf
       - ${ADGUARD_VOLUME}/work:/opt/adguardhome/work
     restart: unless-stopped
+    # networks:
+    #   - adguardhome_network
+    #   - ixtal_shared
     networks:
-      # - adguardhome_network
-      - ixtal_shared
+      ixtal_shared:
+        ipv4_address: ${ADGUARD_DNS_IP}
 
 networks:
   # adguardhome_network:
