@@ -8,10 +8,17 @@ services:
     environment:
       - TUNNEL_TOKEN=${CF_TUNNEL_TOKEN}
     restart: unless-stopped
+    dns:
+      - ${ADGUARD_DNS_IP}
+      - 9.9.9.9
+      - 1.1.1.1
     networks:
-      - cloudflared_network
+      # - cloudflared_network
+      - ixtal_shared
 
 networks:
-  cloudflared_network:
-    name: cloudflared_network
-    driver: bridge
+  # cloudflared_network:
+  #   name: cloudflared_network
+  #   driver: bridge
+  ixtal_shared:
+    external: true

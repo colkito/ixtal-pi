@@ -23,9 +23,12 @@ services:
       - ${ADGUARD_VOLUME}/work:/opt/adguardhome/work
     restart: unless-stopped
     networks:
-      - adguardhome_network
+      # - adguardhome_network
+      - ixtal_shared
 
 networks:
-  adguardhome_network:
-    name: adguardhome_network
-    driver: bridge
+  # adguardhome_network:
+  #   name: adguardhome_network
+  #   driver: bridge
+  ixtal_shared:
+    external: true

@@ -13,10 +13,17 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock # (optional) For docker integrations, see alternative methods
       - ${HOMEPAGE_VOLUME}/config:/app/config # Make sure your local config directory exists
     restart: unless-stopped
+    dns:
+      - ${ADGUARD_DNS_IP}
+      - 9.9.9.9
+      - 1.1.1.1
     networks:
-      - homepage_network
+      # - homepage_network
+      - ixtal_shared
 
 networks:
-  homepage_network:
-    name: homepage_network
-    driver: bridge
+  # homepage_network:
+  #   name: homepage_network
+  #   driver: bridge
+  ixtal_shared:
+    external: true

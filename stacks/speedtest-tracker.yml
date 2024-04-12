@@ -24,8 +24,13 @@ services:
     restart: unless-stopped
     depends_on:
       - speedtracker_db
+    dns:
+      - ${ADGUARD_DNS_IP}
+      - 9.9.9.9
+      - 1.1.1.1
     networks:
-      - speedtracker_network
+      # - speedtracker_network
+      - ixtal_shared
 
   speedtracker_db:
     container_name: speedtracker_db
@@ -41,10 +46,17 @@ services:
     volumes:
       - ${SPEEDTEST_TRACKER_VOLUME}/db:/var/lib/mysql
     restart: unless-stopped
+    dns:
+      - ${ADGUARD_DNS_IP}
+      - 9.9.9.9
+      - 1.1.1.1
     networks:
-      - speedtracker_network
+      # - speedtracker_network
+      - ixtal_shared
 
 networks:
-  speedtracker_network:
-    name: speedtracker_network
-    driver: bridge
+  # speedtracker_network:
+  #   name: speedtracker_network
+  #   driver: bridge
+  ixtal_shared:
+    external: true

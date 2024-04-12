@@ -13,12 +13,17 @@ services:
       - ${NEXTCLOUD_VOLUME}/data:/data
     ports:
       - ${PORT}:443
-    restart: unless-stopped
     depends_on:
       - nextcloud_db
       - nextcloud_redis
+    restart: unless-stopped
+    dns:
+      - ${ADGUARD_DNS_IP}
+      - 9.9.9.9
+      - 1.1.1.1
     networks:
-      - nextcloud_network
+      # - nextcloud_network
+      - ixtal_shared
 
   nextcloud_db:
     image: linuxserver/mariadb:latest
@@ -34,8 +39,13 @@ services:
     volumes:
       - ${NEXTCLOUD_VOLUME}/db:/config
     restart: unless-stopped
+    dns:
+      - ${ADGUARD_DNS_IP}
+      - 9.9.9.9
+      - 1.1.1.1
     networks:
-      - nextcloud_network
+      # - nextcloud_network
+      - ixtal_shared
 
   nextcloud_redis:
     image: redis:7.2.4-alpine3.19
@@ -44,10 +54,17 @@ services:
     volumes:
       - ${NEXTCLOUD_VOLUME}/redis:/data
     restart: unless-stopped
+    dns:
+      - ${ADGUARD_DNS_IP}
+      - 9.9.9.9
+      - 1.1.1.1
     networks:
-      - nextcloud_network
+      # - nextcloud_network
+      - ixtal_shared
 
 networks:
-  nextcloud_network:
-    name: nextcloud_network
-    driver: bridge
+  # nextcloud_network:
+  #   name: nextcloud_network
+  #   driver: bridge
+  ixtal_shared:
+    external: true

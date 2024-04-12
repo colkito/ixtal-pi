@@ -19,10 +19,17 @@ services:
       - ${TRANSMISSION_VOLUME}/downloads:/downloads
       - ${TRANSMISSION_VOLUME}/watch:/watch
     restart: always
+    dns:
+      - ${ADGUARD_DNS_IP}
+      - 9.9.9.9
+      - 1.1.1.1
     networks:
-      - transmission_network
+      # - transmission_network
+      - ixtal_shared
 
 networks:
-  transmission_network:
-    name: transmission_network
-    driver: bridge
+  # transmission_network:
+  #   name: transmission_network
+  #   driver: bridge
+  ixtal_shared:
+    external: true
