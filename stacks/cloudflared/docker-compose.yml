@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   tunnel:
     container_name: cloudflared-tunnel
@@ -9,16 +7,10 @@ services:
       - TUNNEL_TOKEN=${CF_TUNNEL_TOKEN}
     restart: unless-stopped
     dns:
-      - ${ADGUARD_DNS_IP}
-      - 9.9.9.9
+      - ${IXTAL_DNS_IP:-9.9.9.9}
       - 1.1.1.1
-    networks:
-      # - cloudflared_network
-      - ixtal_shared
 
 networks:
-  # cloudflared_network:
-  #   name: cloudflared_network
-  #   driver: bridge
-  ixtal_shared:
+  default:
     external: true
+    name: ixtal_shared
