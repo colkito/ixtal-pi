@@ -1,0 +1,11 @@
+[Interface]
+PrivateKey = <PRIVATE_KEY>
+Address = <ADDRESS>/32
+DNS = 9.9.9.9
+PostUp = /config/up.sh
+PostDown = /config/down.sh
+
+[Peer]
+PublicKey = <PUBLIC_KEY>
+AllowedIPs = 0.0.0.0/0
+Endpoint = <SERVER_IP>:51820

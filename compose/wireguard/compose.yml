@@ -1,0 +1,33 @@
+services:
+  wireguard:
+    container_name: wireguard
+    image: linuxserver/wireguard:latest
+    # ports:
+    #   - 51820:51820/udp
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ} # Replace with your timezone, e.g., Europe/London
+      - SERVERURL=auto # Can be set to your server's URL if auto-detection fails
+      - SERVERPORT=51820 # Default WireGuard port, change if your server uses a different port
+      - PEERS=1 # Number of peer configurations to generate, if needed
+      - PEERDNS=auto # Use auto or specify custom DNS servers
+      - INTERNAL_SUBNET=10.12.12.0/24 # Adjust this if it conflicts with your network
+    volumes:
+      - ${WG_VOLUME}:/config # Replace with the path to your WireGuard config
+      - /lib/modules:/lib/modules
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    restart: unless-stopped
+
+networks:
+  default:
+    name: ixtal_vpn
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 142.0.0.0/16
+          gateway: 142.0.0.1
