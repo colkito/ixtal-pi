@@ -65,6 +65,18 @@ services:
     depends_on:
       - wireguard
 
+  tunnel:
+    container_name: cloudflared-tunnel
+    image: cloudflare/cloudflared:latest
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CF_TUNNEL_TOKEN:?error}
+    restart: unless-stopped
+    networks:
+      - ixtal_vpn
+    depends_on:
+      - wireguard
+
 networks:
   ixtal_shared:
     name: ixtal_shared
