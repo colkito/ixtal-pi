@@ -14,7 +14,7 @@ services:
       - PEERDNS=auto # Use auto or specify custom DNS servers
       - INTERNAL_SUBNET=10.12.12.0/24 # Adjust this if it conflicts with your network
     volumes:
-      - ${WG_VOLUME}:/config # Replace with the path to your WireGuard config
+      - ${WG_VOLUME:?error}:/config # Replace with the path to your WireGuard config
       - /lib/modules:/lib/modules
     cap_add:
       - NET_ADMIN
