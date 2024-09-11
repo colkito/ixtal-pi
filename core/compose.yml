@@ -39,8 +39,8 @@ services:
     # - 6060:6060/tcp # Alternate Web interface port
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${ADGUARD_VOLUME:-./adguardhome}/conf:/opt/adguardhome/conf
-      - ${ADGUARD_VOLUME:-./adguardhome}/work:/opt/adguardhome/work
+      - ${ADGUARD_VOLUME:-./volumes/adguardhome}/conf:/opt/adguardhome/conf
+      - ${ADGUARD_VOLUME:-./volumes/adguardhome}/work:/opt/adguardhome/work
     restart: unless-stopped
     network_mode: service:gluetun
 
@@ -51,7 +51,7 @@ services:
     # ports:
     #   - ${IXAOCAN_PORT_8181:-8181}:8181/tcp
     volumes:
-      - ./ixaocan:/var/www/html
+      - ./volumes/ixaocan:/var/www/html
     network_mode: service:gluetun
 
   tunnel:
