@@ -13,8 +13,6 @@ services:
     ports:
       - ${ADGUARD_PORT_53:-53}:53/tcp
       - ${ADGUARD_PORT_53:-53}:53/udp
-      - ${ADGUARD_PORT_80:-80}:80/tcp
-      - ${IXAOCAN_PORT_9090:-9090}:9090
     volumes:
       - ./gluetun:/gluetun
     restart: always
@@ -40,17 +38,18 @@ services:
     # - 5443:5443/udp # Alternate DNS-over-HTTPS port
     # - 6060:6060/tcp # Alternate Web interface port
     volumes:
-      - ${ADGUARD_VOLUME:?error}/conf:/opt/adguardhome/conf
-      - ${ADGUARD_VOLUME:?error}/work:/opt/adguardhome/work
+      - /etc/localtime:/etc/localtime:ro
+      - ${ADGUARD_VOLUME:-./adguardhome}/conf:/opt/adguardhome/conf
+      - ${ADGUARD_VOLUME:-./adguardhome}/work:/opt/adguardhome/work
     restart: unless-stopped
     network_mode: service:gluetun
 
   ixaocan:
     container_name: ixaocan
     image: busybox:latest
-    command: httpd -f -p 9090 -h /var/www/html
+    command: httpd -f -p 8181 -h /var/www/html
     # ports:
-    #   - ${IXAOCAN_PORT_9090:-9090}:9090
+    #   - ${IXAOCAN_PORT_8181:-8181}:8181/tcp
     volumes:
       - ./ixaocan:/var/www/html
     network_mode: service:gluetun

@@ -1,0 +1,16 @@
+services:
+  tunnel:
+    container_name: cloudflared-tunnel
+    image: cloudflare/cloudflared:latest
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CF_TUNNEL_TOKEN}
+    restart: unless-stopped
+    dns:
+      - ${IXTAL_DNS_IP:-9.9.9.9}
+      - 1.1.1.1
+
+networks:
+  default:
+    name: ixtal_shared
+    external: true
