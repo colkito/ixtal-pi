@@ -1,21 +1,27 @@
 services:
   gluetun:
     container_name: gluetun
-    image: qmcgaw/gluetun
+    image: qmcgaw/gluetun:latest
     cap_add:
       - NET_ADMIN
     devices:
       - /dev/net/tun:/dev/net/tun
     environment:
       - TZ=${TZ}
+      # - VPN_TYPE=wireguard
+      # - VPN_SERVICE_PROVIDER=protonvpn
+      # - OPENVPN_USER=${OPENVPN_USER:?error}
+      # - OPENVPN_PASSWORD=${OPENVPN_PASSWORD:?error}
+      # - SERVER_COUNTRIES=${SERVER_COUNTRIES:?error}
       - VPN_SERVICE_PROVIDER=custom
-      - VPN_TYPE=wireguard
+      - OPENVPN_CUSTOM_CONFIG=/gluetun/custom.conf
       - DOT=off
       - DNS_ADDRESS=9.9.9.9
       - HTTP_CONTROL_SERVER_ADDRESS=:8080
     ports:
       - ${ADGUARD_PORT_53:-53}:53/tcp
       - ${ADGUARD_PORT_53:-53}:53/udp
+      - 9080:80/tcp # speedtest-tracker
     volumes:
       - ./volumes/gluetun:/gluetun
     restart: always
@@ -42,19 +48,9 @@ services:
     # - 6060:6060/tcp # Alternate Web interface port
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${ADGUARD_VOLUME:-./volumes/adguardhome}/conf:/opt/adguardhome/conf
-      - ${ADGUARD_VOLUME:-./volumes/adguardhome}/work:/opt/adguardhome/work
+      - ${ADGUARD_VOLUME:?error}/conf:/opt/adguardhome/conf
+      - ${ADGUARD_VOLUME:?error}/work:/opt/adguardhome/work
     restart: unless-stopped
-    network_mode: service:gluetun
-
-  ixaocan:
-    container_name: ixaocan
-    image: busybox:latest
-    command: httpd -f -p 8282 -h /var/www/html
-    # ports:
-    #   - ${IXAOCAN_PORT_8282:-8282}:8282/tcp
-    volumes:
-      - ./volumes/ixaocan:/var/www/html
     network_mode: service:gluetun
 
   tunnel:
@@ -68,4 +64,3 @@ services:
     depends_on:
       - gluetun
       - adguardhome
-      - ixaocan
