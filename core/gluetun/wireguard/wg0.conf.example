@@ -1,0 +1,9 @@
+[Interface]
+PrivateKey = <WIREGUARD_PRIVATE_KEY>
+Address = <WIREGUARD_ADDRESSES>
+DNS = 9.9.9.9
+
+[Peer]
+PublicKey = <WIREGUARD_PUBLIC_KEY>
+AllowedIPs = 0.0.0.0/0
+Endpoint = <WIREGUARD_ENDPOINT_IP>:<WIREGUARD_ENDPOINT_PORT>

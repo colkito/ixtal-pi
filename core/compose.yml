@@ -1,73 +1,59 @@
 services:
-  ixaocan:
-    container_name: ixaocan
-    image: busybox:latest
-    ports:
-      - ${IXAOCAN_PORT_8080:-8080}:8080
-    command: httpd -f -p 8080 -h /var/www/html
-    volumes:
-      - ./ixaocan:/var/www/html
-    networks:
-      - ixtal_vpn
-    depends_on:
-      - wireguard
-
-  wireguard:
-    container_name: wireguard
-    image: linuxserver/wireguard:latest
-    ports:
-      - ${WIREGUARD_PORT_51820:-51820}:51820/udp
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=${WIREGUARD_TZ} # Replace with your timezone, e.g., Europe/London
-      - SERVERURL=auto # Can be set to your server's URL if auto-detection fails
-      - SERVERPORT=51820 # Default WireGuard port, change if your server uses a different port
-      - PEERS=1 # Number of peer configurations to generate, if needed
-      - PEERDNS=auto # Use auto or specify custom DNS servers
-      - INTERNAL_SUBNET=10.12.12.0/24 # Adjust this if it conflicts with your network
-    volumes:
-      - ${WIREGUARD_VOLUME:?error}:/config # Replace with the path to your WireGuard config
-      - /lib/modules:/lib/modules
+  gluetun:
+    container_name: gluetun
+    image: qmcgaw/gluetun
     cap_add:
       - NET_ADMIN
-      - SYS_MODULE
-    sysctls:
-      - net.ipv4.conf.all.src_valid_mark=1
-      - net.ipv4.ip_forward=1
-    networks:
-      ixtal_vpn:
-        ipv4_address: 142.0.0.2
-    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - VPN_SERVICE_PROVIDER=custom
+      - VPN_TYPE=wireguard
+      - DOT=off
+      - DNS_ADDRESS=9.9.9.9
+    ports:
+      - ${ADGUARD_PORT_53:-53}:53/tcp
+      - ${ADGUARD_PORT_53:-53}:53/udp
+      - ${ADGUARD_PORT_80:-80}:80/tcp
+      - ${IXAOCAN_PORT_9090:-9090}:9090
+    volumes:
+      - ./gluetun:/gluetun
+    restart: always
 
   adguardhome:
     container_name: adguardhome
     image: adguard/adguardhome:latest
-    ports:
-      - ${ADGUARD_PORT_53:-53}:53/tcp
-      - ${ADGUARD_PORT_53:-53}:53/udp
-      # Uncomment other ports as needed
-      # - ${ADGUARD_PORT_3000:-3000}:3000/tcp # Web interface
-      # - ${ADGUARD_PORT_3000:-3000}:3000/udp # Alternate Web interface
-      # - ${ADGUARD_PORT_80:-80}:80/tcp
-      # - ${ADGUARD_PORT_443:-443}:443/tcp
-      # - ${ADGUARD_PORT_443:-443}:443/udp # DNS-over-HTTPS
-      # - '67:67/udp' # DHCP server
-      # - '68:68/tcp' # DHCP server
-      # - '68:68/udp' # DHCP server
-      # - '853:853/tcp' # DNS-over-TLS
-      # - '853:853/udp' # DNS-over-QUIC
-      # - '5443:5443/tcp' # Alternate DNS-over-HTTPS port
-      # - '5443:5443/udp' # Alternate DNS-over-HTTPS port
-      # - '6060:6060/tcp' # Alternate Web interface port
+    # ports:
+    # - ${ADGUARD_PORT_53:-53}:53/tcp
+    # - ${ADGUARD_PORT_53:-53}:53/udp
+    # Uncomment other ports as needed
+    # - ${ADGUARD_PORT_3000:-3000}:3000/tcp # Web interface
+    # - ${ADGUARD_PORT_3000:-3000}:3000/udp # Alternate Web interface
+    # - ${ADGUARD_PORT_80:-80}:80/tcp
+    # - ${ADGUARD_PORT_443:-443}:443/tcp
+    # - ${ADGUARD_PORT_443:-443}:443/udp # DNS-over-HTTPS
+    # - 67:67/udp # DHCP server
+    # - 68:68/tcp # DHCP server
+    # - 68:68/udp # DHCP server
+    # - 853:853/tcp # DNS-over-TLS
+    # - 853:853/udp # DNS-over-QUIC
+    # - 5443:5443/tcp # Alternate DNS-over-HTTPS port
+    # - 5443:5443/udp # Alternate DNS-over-HTTPS port
+    # - 6060:6060/tcp # Alternate Web interface port
     volumes:
       - ${ADGUARD_VOLUME:?error}/conf:/opt/adguardhome/conf
       - ${ADGUARD_VOLUME:?error}/work:/opt/adguardhome/work
     restart: unless-stopped
-    networks:
-      - ixtal_vpn
-    depends_on:
-      - wireguard
+    network_mode: service:gluetun
+
+  ixaocan:
+    container_name: ixaocan
+    image: busybox:latest
+    command: httpd -f -p 9090 -h /var/www/html
+    # ports:
+    #   - ${IXAOCAN_PORT_9090:-9090}:9090
+    volumes:
+      - ./ixaocan:/var/www/html
+    network_mode: service:gluetun
 
   tunnel:
     container_name: cloudflared-tunnel
@@ -76,32 +62,8 @@ services:
     environment:
       - TUNNEL_TOKEN=${CF_TUNNEL_TOKEN:?error}
     restart: unless-stopped
-    networks:
-      - ixtal_vpn
+    network_mode: service:gluetun
     depends_on:
-      - wireguard
-
-  vpn_routing:
-    container_name: vpn_routing
-    image: alpine:latest
-    cap_add:
-      - NET_ADMIN
-    command: >
-      sh -c "
-        apk add --no-cache iptables &&
-        iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE &&
-        iptables -A FORWARD -i eth0 -o eth0 -j ACCEPT &&
-        while true; do sleep 3600; done
-      "
-    network_mode: host
-    depends_on:
-      - wireguard
-
-networks:
-  ixtal_vpn:
-    name: ixtal_vpn
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 142.0.0.0/16
-          gateway: 142.0.0.1
+      - gluetun
+      - adguardhome
+      - ixaocan
