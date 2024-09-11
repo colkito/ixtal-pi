@@ -4,12 +4,15 @@ services:
     image: qmcgaw/gluetun
     cap_add:
       - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
     environment:
       - TZ=${TZ}
       - VPN_SERVICE_PROVIDER=custom
       - VPN_TYPE=wireguard
       - DOT=off
       - DNS_ADDRESS=9.9.9.9
+      - HTTP_CONTROL_SERVER_ADDRESS=:8080
     ports:
       - ${ADGUARD_PORT_53:-53}:53/tcp
       - ${ADGUARD_PORT_53:-53}:53/udp
@@ -26,7 +29,7 @@ services:
     # Uncomment other ports as needed
     # - ${ADGUARD_PORT_3000:-3000}:3000/tcp # Web interface
     # - ${ADGUARD_PORT_3000:-3000}:3000/udp # Alternate Web interface
-    # - ${ADGUARD_PORT_80:-80}:80/tcp
+    # - ${ADGUARD_PORT_80:-80}:80/tcp # Using 8181
     # - ${ADGUARD_PORT_443:-443}:443/tcp
     # - ${ADGUARD_PORT_443:-443}:443/udp # DNS-over-HTTPS
     # - 67:67/udp # DHCP server
@@ -47,9 +50,9 @@ services:
   ixaocan:
     container_name: ixaocan
     image: busybox:latest
-    command: httpd -f -p 8181 -h /var/www/html
+    command: httpd -f -p 8282 -h /var/www/html
     # ports:
-    #   - ${IXAOCAN_PORT_8181:-8181}:8181/tcp
+    #   - ${IXAOCAN_PORT_8282:-8282}:8282/tcp
     volumes:
       - ./volumes/ixaocan:/var/www/html
     network_mode: service:gluetun
