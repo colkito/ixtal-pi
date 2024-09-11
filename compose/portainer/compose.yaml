@@ -1,12 +1,12 @@
 services:
   portainer:
     container_name: portainer
-    image: portainer/portainer-ce:2.21.0
+    image: portainer/portainer-ce:latest
     # ports:
     #   - 8000:8000
     #   - 9443:9443
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ${PORTAINER_VOLUME:?error}/portainer_data:/data
+      - ${PORTAINER_VOLUME:?error}/data:/data
     restart: unless-stopped
     network_mode: container:gluetun

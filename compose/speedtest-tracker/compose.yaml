@@ -1,0 +1,20 @@
+services:
+  speedtest-tracker:
+    container_name: speedtest-tracker
+    image: lscr.io/linuxserver/speedtest-tracker:latest
+    # ports:
+    #   - 8080:80
+    #   - 8443:443
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - APP_KEY=${SPEEDTEST_APP_KEY:?error} # How to generate an app key: https://speedtest-tracker.dev/
+      - APP_URL=http://localhost
+      - APP_TIMEZONE=${TZ}
+      - DB_CONNECTION=sqlite
+      - SPEEDTEST_SCHEDULE=*/1 * * * *
+    volumes:
+      - ${SPEEDTEST_VOLUME:?error}:/config
+      # - /path/to-custom-ssl-keys:/config/keys
+    restart: unless-stopped
+    network_mode: container:gluetun
