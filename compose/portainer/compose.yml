@@ -9,3 +9,4 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${PORTAINER_VOLUME:?error}/portainer_data:/data
     restart: unless-stopped
+    network_mode: container:gluetun
