@@ -14,7 +14,7 @@ services:
       - ${ADGUARD_PORT_53:-53}:53/tcp
       - ${ADGUARD_PORT_53:-53}:53/udp
     volumes:
-      - ./gluetun:/gluetun
+      - ./volumes/gluetun:/gluetun
     restart: always
 
   adguardhome:
