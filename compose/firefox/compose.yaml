@@ -11,6 +11,8 @@ services:
       - TZ=${TZ}
       - FIREFOX_CLI=https://www.linuxserver.io/ #optional
       - CUSTOM_HTTPS_PORT=${FIREFOX_CUSTOM_HTTPS_PORT:?error} # required to avoid gluetun conflicts
+      - CUSTOM_USER=${FIREFOX_CUSTOM_USER:?error}
+      - PASSWORD=${FIREFOX_PASSWORD:?error}
     volumes:
       - ${FIREFOX_VOLUME:?error}:/config
     shm_size: "1gb"
