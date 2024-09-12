@@ -12,7 +12,7 @@ services:
       - APP_URL=http://localhost
       - APP_TIMEZONE=${TZ}
       - DB_CONNECTION=sqlite
-      - SPEEDTEST_SCHEDULE=*/1 * * * *
+      - SPEEDTEST_SCHEDULE=${SPEEDTEST_SCHEDULE:?error}
     volumes:
       - ${SPEEDTEST_VOLUME:?error}:/config
       # - /path/to-custom-ssl-keys:/config/keys
