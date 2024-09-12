@@ -16,5 +16,5 @@ services:
     volumes:
       - ${SPEEDTEST_VOLUME:?error}:/config
       # - /path/to-custom-ssl-keys:/config/keys
-    restart: unless-stopped
+    restart: always
     network_mode: container:gluetun
