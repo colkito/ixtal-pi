@@ -8,5 +8,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${PORTAINER_VOLUME:?error}/data:/data
-    restart: unless-stopped
+    command: --http-disabled
+    restart: always
     network_mode: container:gluetun
