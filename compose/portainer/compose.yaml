@@ -5,9 +5,9 @@ services:
     # ports:
     #   - ${PORTAINER_PORT_8000:-8000}:8000
     #   - ${PORTAINER_PORT_9443:-9443}:9443
+    command: --http-disabled # Disable port 9000 to avoid conflicts
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${PORTAINER_VOLUME:?error}/data:/data
-    command: --http-disabled # Disable port 9000 to avoid conflicts
     restart: always
     network_mode: container:gluetun

@@ -4,26 +4,30 @@ services:
     image: qmcgaw/gluetun:latest
     cap_add:
       - NET_ADMIN
-    devices:
-      - /dev/net/tun:/dev/net/tun
     environment:
       - TZ=${TZ}
-      # - VPN_SERVICE_PROVIDER=protonvpn
-      # - VPN_TYPE=wireguard
-      # - SERVER_COUNTRIES=${SERVER_COUNTRIES:?error}
       - VPN_SERVICE_PROVIDER=custom
       - OPENVPN_CUSTOM_CONFIG=/gluetun/custom.conf
       - OPENVPN_USER=${OPENVPN_USER:?error}
       - OPENVPN_PASSWORD=${OPENVPN_PASSWORD:?error}
       - DOT=off
-      - DNS_ADDRESS=9.9.9.9
+      - DNS_ADDRESS=9.9.9.9 # Use public DNS servers initially
+      - DNS_ADDRESS_FALLBACK=1.1.1.1 # Fallback DNS servers
+      # - DNS_KEEP_NAMESERVER=on
       - HTTP_CONTROL_SERVER_ADDRESS=:8080
     ports:
       - ${ADGUARD_PORT_53:-53}:53/tcp
       - ${ADGUARD_PORT_53:-53}:53/udp
+      # - ${ADGUARD_PORT_3000:-3000}:3000/tcp # Expose AdGuard Home web interface at first run
     volumes:
       - ./volumes/gluetun:/gluetun
     restart: always
+    healthcheck:
+      test: [ 'CMD', '/gluetun-entrypoint', 'healthcheck' ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   adguardhome:
     container_name: adguardhome
@@ -51,6 +55,15 @@ services:
       - ${ADGUARD_VOLUME:?error}/work:/opt/adguardhome/work
     restart: unless-stopped
     network_mode: service:gluetun
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    healthcheck:
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:3000' ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   tunnel:
     container_name: cloudflared-tunnel
@@ -61,5 +74,14 @@ services:
     restart: unless-stopped
     network_mode: service:gluetun
     depends_on:
-      - gluetun
-      - adguardhome
+      gluetun:
+        condition: service_healthy
+      adguardhome:
+        condition: service_started
+
+networks:
+  vpn_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24

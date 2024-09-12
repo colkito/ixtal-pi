@@ -14,8 +14,8 @@ services:
       - CUSTOM_HTTPS_PORT=${FIREFOX_CUSTOM_HTTPS_PORT:?error} # required to avoid gluetun conflicts
       - CUSTOM_USER=${FIREFOX_CUSTOM_USER:?error}
       - PASSWORD=${FIREFOX_PASSWORD:?error}
+    shm_size: '1gb'
     volumes:
       - ${FIREFOX_VOLUME:?error}:/config
-    shm_size: '1gb'
     restart: unless-stopped
     network_mode: container:gluetun
