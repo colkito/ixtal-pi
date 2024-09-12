@@ -9,7 +9,7 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=${TZ}
-      - FIREFOX_CLI=https://www.linuxserver.io/ #optional
+      - FIREFOX_CLI=https://ipinfo.io #optional
       - CUSTOM_PORT=${FIREFOX_CUSTOM_PORT:?error} # required to avoid gluetun conflicts
       - CUSTOM_HTTPS_PORT=${FIREFOX_CUSTOM_HTTPS_PORT:?error} # required to avoid gluetun conflicts
       - CUSTOM_USER=${FIREFOX_CUSTOM_USER:?error}
