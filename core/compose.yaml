@@ -13,19 +13,18 @@ services:
       - DOT=off
       - DNS_ADDRESS=9.9.9.9 # Use public DNS servers initially
       - DNS_ADDRESS_FALLBACK=1.1.1.1 # Fallback DNS servers
-      # - DNS_KEEP_NAMESERVER=on
-      - HTTP_CONTROL_SERVER_ADDRESS=:8080
+      - HTTP_CONTROL_SERVER_ADDRESS=127.0.0.1:8080
     ports:
       - ${ADGUARD_PORT_53:-53}:53/tcp
       - ${ADGUARD_PORT_53:-53}:53/udp
       # - ${ADGUARD_PORT_3000:-3000}:3000/tcp # Expose AdGuard Home web interface at first run
     volumes:
-      - ./volumes/gluetun:/gluetun
-    restart: always
+      - ./volumes/gluetun:/gluetun:rw
+    restart: unless-stopped
     healthcheck:
       test: [ 'CMD', '/gluetun-entrypoint', 'healthcheck' ]
-      interval: 5s
-      timeout: 5s
+      interval: 30s
+      timeout: 10s
       retries: 3
       start_period: 10s
 
@@ -51,17 +50,17 @@ services:
     # - 6060:6060/tcp # Alternate Web interface port
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${ADGUARD_VOLUME:?error}/conf:/opt/adguardhome/conf
-      - ${ADGUARD_VOLUME:?error}/work:/opt/adguardhome/work
+      - ${ADGUARD_VOLUME:?error}/conf:/opt/adguardhome/conf:rw
+      - ${ADGUARD_VOLUME:?error}/work:/opt/adguardhome/work:rw
     restart: unless-stopped
     network_mode: service:gluetun
     depends_on:
       gluetun:
         condition: service_healthy
     healthcheck:
-      test: "/bin/netstat -tuln | /bin/grep ':53 ' | /bin/grep 'LISTEN'"
-      interval: 5s
-      timeout: 5s
+      test: "netstat -tuln | grep ':53 ' | grep 'LISTEN' || exit 1"
+      interval: 30s
+      timeout: 10s
       retries: 3
       start_period: 10s
 
@@ -73,7 +72,7 @@ services:
     #   - ${PORTAINER_PORT_9443:-9443}:9443
     command: --http-disabled # Disable port 9000 to avoid conflicts
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${PORTAINER_VOLUME:?error}/data:/data
     restart: unless-stopped
     network_mode: service:gluetun
@@ -93,7 +92,7 @@ services:
       gluetun:
         condition: service_healthy
       adguardhome:
-        condition: service_started
+        condition: service_healthy
 
 networks:
   vpn_network:
