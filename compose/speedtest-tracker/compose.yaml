@@ -8,11 +8,12 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
+      - TZ=${TZ}
       - APP_KEY=${SPEEDTEST_APP_KEY:?error} # How to generate an app key: https://speedtest-tracker.dev/
-      - APP_URL=http://localhost
-      - APP_TIMEZONE=${TZ}
       - DB_CONNECTION=sqlite
       - SPEEDTEST_SCHEDULE=${SPEEDTEST_SCHEDULE:?error}
+      - SPEEDTEST_SERVERS=${SPEEDTEST_SERVERS}
+      - DISPLAY_TIMEZONE=${TZ}
     volumes:
       - ${SPEEDTEST_VOLUME:?error}:/config
       # - /path/to-custom-ssl-keys:/config/keys
