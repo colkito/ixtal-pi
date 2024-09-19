@@ -1,0 +1,67 @@
+client
+dev tun
+proto udp
+
+# Specify the remote server addresses (can be environment variables or placeholders)
+remote IP_ADDRESS_1 PORT_1
+# remote IP_ADDRESS_2 PORT_2
+# remote IP_ADDRESS_3 PORT_3
+
+remote-random
+resolv-retry infinite
+nobind
+
+# Encryption settings
+cipher AES-256-GCM
+auth SHA256
+
+# Certificates and keys
+# Option 1: Reference files (uncomment if using files)
+# ca ca.crt
+# cert client.crt
+# key client.key
+# tls-auth ta.key 1
+
+# Option 2: Inline certificates and keys (uncomment if embedding)
+<ca>
+-----BEGIN CERTIFICATE-----
+# Your CA certificate here
+-----END CERTIFICATE-----
+</ca>
+
+<cert>
+-----BEGIN CERTIFICATE-----
+# Your client certificate here
+-----END CERTIFICATE-----
+</cert>
+
+<key>
+-----BEGIN PRIVATE KEY-----
+# Your client private key here
+-----END PRIVATE KEY-----
+</key>
+
+# Optional: DNS settings
+# dhcp-option DNS 9.9.9.9
+# dhcp-option DNS 1.1.1.1
+
+# Connection settings
+tun-mtu 1500
+mssfix 0
+persist-key
+persist-tun
+reneg-sec 0
+
+# Security
+remote-cert-tls server
+auth-user-pass
+
+# Logging and debugging options (optional)
+# verb 3
+# log openvpn.log
+
+# Script security
+script-security 2
+
+# Keepalive settings
+keepalive 10 120
